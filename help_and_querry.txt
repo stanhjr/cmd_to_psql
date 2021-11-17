@@ -1,0 +1,53 @@
+C:\Users\uto\Desktop\cmd_to_psql\cmd_to_psql.exe "202202023402" "01-00010285" "Промдизайн" "01-00005712" "лапки" "Порезка на лазере" "\\192.168.77.240\pd_works\pd_works\Digitalization\01-18000-18999\01-18300-18400\01-18315 Фокстрот\Планшет\Лазер.pdf" "Давыдов Сергей Николаевич" "05.12.2021" "1"
+
+
+
+Порядок важен! ))
+
+
+C:\Users\uto\Desktop\cmd_to_psql\cmd_to_psql.exe - Путь к исполняемому файлу
+"202202023402"                                   - номер штрихкода
+"01-00010285"                                    - номер проекта
+"Промдизайн"                                     - Объект
+"01-00005712"                                    - номер внутреннего заказа (номер без "Внутренний заказ")
+"лапки"                                          - Изделие
+"Порезка на лазере"                              - Подразделение
+"\\192.168.77.240\pd_works\pd_works\Digitalization\01-18000-18999\01-18300-18400\01-18315 Фокстрот\Планшет\Лазер.pdf" - Чертёж
+"Давыдов Сергей Николаевич"                      - Конструктор
+"05.12.2021"                                     - Срок
+"1"                                              - приоритет
+
+
+
+
+
+
+ВАЖНО!
+
+1. в аргументах не должно содержаться символа двойной кавычки (")
+2. аргументы разделены двойными кавычками и пробелом
+
+
+SQL запросы:
+
+CREATE TABLE constructor_name (id BIGSERIAL PRIMARY KEY, constructor_name VARCHAR (32) NOT NULL);
+CREATE TABLE production_area (id BIGSERIAL PRIMARY KEY, production_area VARCHAR (32) NOT NULL);
+CREATE TABLE project_number (id BIGSERIAL PRIMARY KEY, project_number VARCHAR (32), project_description TEXT);
+CREATE TABLE order_description (id BIGSERIAL PRIMARY KEY, order_description TEXT);
+
+
+
+CREATE TABLE order_base_pd (id BIGSERIAL PRIMARY KEY, barcode_number VARCHAR (20), 
+project_number INTEGER NOT NULL REFERENCES project_number(id), order_number VARCHAR (32), 
+order_description INTEGER NOT NULL REFERENCES order_description(id), 
+production_area INTEGER NOT NULL REFERENCES production_area(id),  file_path TEXT, 
+constructor_name INTEGER NOT NULL REFERENCES constructor_name(id), deadline DATE,  priority INTEGER);
+
+
+
+SELECT order_base_pd.id, project_number.project_number, project_number.project_description, order_base_pd.order_number, order_description.order_description, order_base_pd.barcode_number, order_base_pd.deadline, order_base_pd.priority,  constructor_name.constructor_name, production_area.production_area
+FROM order_base_pd
+JOIN project_number ON project_number.id = order_base_pd.project_number
+JOIN constructor_name ON order_base_pd.constructor_name = constructor_name.id
+JOIN order_description ON order_base_pd.order_description = order_description.id
+JOIN production_area ON order_base_pd.production_area = production_area.id;
